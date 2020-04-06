@@ -20,7 +20,7 @@ public class MainView implements ActionListener{
 	private StoreView store;
 	
 
-	public MainView() {	
+	public MainView(boolean vis) {	
 		first = new JFrame();
 		first.setLayout(new BorderLayout());
 		first.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -56,10 +56,10 @@ public class MainView implements ActionListener{
 		
 		first.add(greeting, BorderLayout.CENTER);
 		first.pack();
-		first.setVisible(true);
+		first.setVisible(vis);
 	}
 	
-	public void signIn() {
+	public void signIn(boolean sOpen) {
 		signIn = new JFrame("Sign In");
 		signIn.setLayout(new BorderLayout());
 		
@@ -98,9 +98,16 @@ public class MainView implements ActionListener{
 				System.out.println(eIn);
 				System.out.println(pIn);
 				//implement checker with database values
-				first.dispose();
-				signIn.dispose();
-				store = new StoreView(true);
+				
+				if(sOpen) {
+					signIn.dispose();
+				}
+				else {
+					first.dispose();
+					signIn.dispose();
+					store = new StoreView(true, "Michael");
+				}
+				
 				
 			}
 			
@@ -231,20 +238,20 @@ public class MainView implements ActionListener{
 	}
 	
 	public static void main(String[] args) {
-		MainView view = new MainView();
+		MainView view = new MainView(true);
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String a = e.getActionCommand();
 		if(a.equals("SIGN IN")) {
-			this.signIn();
+			this.signIn(false);
 		}
 		else if(a.equals("Create Account")) {
 			this.createFrame();
 		}
 		else if(a.contentEquals("Continue As Guest")) {
 			first.dispose();
-			store = new StoreView(false);
+			store = new StoreView(false, "Guest");
 		}
 		
 	}
