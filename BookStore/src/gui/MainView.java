@@ -6,8 +6,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.*;
+import java.sql.*;
 
 public class MainView implements ActionListener{
 	/**
@@ -19,7 +19,6 @@ public class MainView implements ActionListener{
 	private JFrame createA;
 	private StoreView store;
 	
-
 	public MainView(boolean vis) {	
 		first = new JFrame();
 		first.setLayout(new BorderLayout());
@@ -59,7 +58,7 @@ public class MainView implements ActionListener{
 		first.setVisible(vis);
 	}
 	
-	public void signIn(boolean sOpen) {
+	public void signIn() {
 		signIn = new JFrame("Sign In");
 		signIn.setLayout(new BorderLayout());
 		
@@ -79,7 +78,7 @@ public class MainView implements ActionListener{
 		eInput.add(em);
 		
 		JPanel pInput = new JPanel(new FlowLayout());
-		JPasswordField p = new JPasswordField(20);
+		JTextField p = new JTextField(20);
 		p.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		JLabel pW = new JLabel("Password");
 		pW.setFont(new Font("Times New Roman", Font.PLAIN, 16));
@@ -93,22 +92,27 @@ public class MainView implements ActionListener{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String eIn = em.getText();
-				char[] pIn = p.getPassword();
-				System.out.println(eIn);
-				System.out.println(pIn);
-				//implement checker with database values
-				
-				if(sOpen) {
-					signIn.dispose();
+				String eIn = "'" + em.getText() + "'";
+				String pIn = p.getText();
+				String query = "select name from customer where email = " + eIn + "and password = " + "'" + pIn + "'";
+				ResultSet result;
+				String name;
+				try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+					result = s.executeQuery(query);
+					if(result.next()) {
+						name = result.getString("name");
+						first.dispose();
+						signIn.dispose();
+						store = new StoreView(true, name);
+						
+					}
+					else {
+						JOptionPane.showMessageDialog(new JFrame(), "Incorrect email or password");
+					}
+				} catch (SQLException e1) {
+					
+					e1.printStackTrace();
 				}
-				else {
-					first.dispose();
-					signIn.dispose();
-					store = new StoreView(true, "Michael");
-				}
-				
-				
 			}
 			
 		});
@@ -184,8 +188,9 @@ public class MainView implements ActionListener{
 		phoneInput.add(phone);
 		
 		JPanel pInput = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		JPasswordField p = new JPasswordField(20);
+		JTextField p = new JTextField(20);
 		p.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		
 		JLabel pW = new JLabel("Password");
 		pW.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		pInput.add(pW);
@@ -203,19 +208,21 @@ public class MainView implements ActionListener{
 				String fullname = name.getText();
 				String address = addr.getText() + " " + postal.getText() + " " + province.getText();
 				String phonenum = phone.getText();
-				int phonenumber = Integer.parseInt(phonenum);
+				String pIn =  p.getText();
 				
-				char[] pIn = p.getPassword();
-				System.out.println(email);
-				System.out.println(fullname);
-				System.out.println(address);
-				System.out.println(phonenumber);
-				System.out.println(pIn);
-				// implement input to database account information
+				String query = "insert into customer values ('" + email + "', '" + fullname + "', '" + address + "', '" + phonenum + "', '" + pIn + "')";
+				
+				try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+					s.executeQuery(query);
+					
+					
+				} catch (SQLException e1) {
+					
+					e1.printStackTrace();
+				}
 				
 				JOptionPane.showMessageDialog(new JFrame(), "Account Created Log in now");
 				createA.dispose();
-				
 			}
 			
 		});
@@ -244,7 +251,7 @@ public class MainView implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		String a = e.getActionCommand();
 		if(a.equals("SIGN IN")) {
-			this.signIn(false);
+			this.signIn();
 		}
 		else if(a.equals("Create Account")) {
 			this.createFrame();
