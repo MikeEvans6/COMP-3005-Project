@@ -1,4 +1,4 @@
-Sample data used for testing application
+//Sample data used for testing application
 
 insert into customer values ('jimbob@gmail.com', 'Jim Bob', '42 Sim st Ottawa K0A1K0 Ontario', '4169235654', 'jim123');
 insert into customer values ('tylerblair@gmail.com', 'Tyler Blair', '25 Oak st Fenelon Falls K0M1N0 Ontario', '4165343412', 'tyler345');

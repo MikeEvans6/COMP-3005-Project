@@ -1,4 +1,4 @@
-The DDL statements for the creation of all the tables
+//The DDL statements for the creation of all the tables
 
 create table publisher
 (p_name varchar(40),
