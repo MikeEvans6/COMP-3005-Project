@@ -97,7 +97,7 @@ public class MainView implements ActionListener{
 				String query = "select name from customer where email = " + eIn + "and password = " + "'" + pIn + "'";
 				ResultSet result;
 				String name;
-				try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+				try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "passwd"); Statement s = c.createStatement();){
 					result = s.executeQuery(query);
 					if(result.next()) {
 						name = result.getString("name");
@@ -212,7 +212,7 @@ public class MainView implements ActionListener{
 				
 				String query = "insert into customer values ('" + email + "', '" + fullname + "', '" + address + "', '" + phonenum + "', '" + pIn + "')";
 				
-				try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+				try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "passwd"); Statement s = c.createStatement();){
 					s.executeQuery(query);
 					
 					

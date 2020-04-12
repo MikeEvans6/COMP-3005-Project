@@ -26,7 +26,6 @@ public class StoreView extends JFrame implements ActionListener{
 	private String name;
 	private JFrame signingIn, bookSel;
 	private ArrayList<String> books = new ArrayList<String>();
-	private ArrayList<String> bookSearch = new ArrayList<String>();
 	private JButton[] bookButtons;
 	private JLabel[] bookTitles;
 	private int count;
@@ -101,7 +100,7 @@ public class StoreView extends JFrame implements ActionListener{
 		String query = "select * from book";
 		ResultSet result;
 		count = 0;
-		try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+		try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "passwd"); Statement s = c.createStatement();){
 			result = s.executeQuery(query);
 			while(result.next()) {
 				books.add(result.getString("title"));
@@ -185,7 +184,7 @@ public class StoreView extends JFrame implements ActionListener{
 				String pIn = p.getText();
 				String query = "select name from customer where email = " + eIn + "and password = " + "'" + pIn + "'";
 				ResultSet result;
-				try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+				try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "passwd"); Statement s = c.createStatement();){
 					result = s.executeQuery(query);
 					if(result.next()) {
 						name = result.getString("name");
@@ -221,11 +220,11 @@ public class StoreView extends JFrame implements ActionListener{
 		
 		bookSel.setLayout(new BorderLayout());
 		bookInfo = new JPanel(new FlowLayout());
-		ResultSet result, authorSet, publisherSet;
-		String authorQ, publisherQ;
+		ResultSet result, authorSet;
+		String authorQ;
 		
 		JLabel author, publisher, isbn, genre, year, price, pages, titleL, quant;
-		try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+		try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "passwd"); Statement s = c.createStatement();){
 			String query = "select * from book where title = '" + title + "'";
 			result = s.executeQuery(query);
 			
@@ -252,8 +251,11 @@ public class StoreView extends JFrame implements ActionListener{
 				pages = new JLabel("Pages: " + result.getString("pages"));
 				pages.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 				
+				publisher = new JLabel("Publisher: " + result.getString("p_name"));
+				publisher.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+				
 				authorQ = "select a_name from written_by where ISBN = '" + result.getString("ISBN") + "'";
-				publisherQ = "select p_name from published_by where ISBN = '" + result.getString("ISBN") + "'";
+			
 				
 				authorSet = s.executeQuery(authorQ);
 				if(authorSet.next()) {
@@ -263,14 +265,7 @@ public class StoreView extends JFrame implements ActionListener{
 					bookInfo.add(author);
 				}
 				
-				publisherSet = s.executeQuery(publisherQ);
-				if(publisherSet.next()) {
-					publisher = new JLabel("Publisher: " + publisherSet.getString("p_name"));
-					publisher.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-					
-					bookInfo.add(publisher);
-				}
-
+				bookInfo.add(publisher);
 				bookInfo.add(genre);
 				bookInfo.add(year);
 				bookInfo.add(pages);
@@ -303,26 +298,30 @@ public class StoreView extends JFrame implements ActionListener{
 		String query;
 		ResultSet result;
 		int searchcount = 0;
-		bookSearch = new ArrayList<String>();
+		books = new ArrayList<String>();
+		for(int i = 0; i< bookButtons.length; i++) {
+			bookButtons[i].removeActionListener(this);
+		}
 		
 		if(searchType.equals("author") && !searchVal.equals("")) {
 			query = "select book.title from book, written_by where written_by.a_name = '" + searchVal + "' and book.ISBN = written_by.ISBN";
-			try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+			try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "passwd"); Statement s = c.createStatement();){
 				result = s.executeQuery(query);
 				while(result.next()) {
-					bookSearch.add(result.getString("Title"));
+					books.add(result.getString("Title"));
 					searchcount++;
 				}
 				
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-			if(bookSearch.size()> 0) {
+			if(books.size()> 0) {
 				for(int i = 0; i < count; i++) {
 					if(i < searchcount) {
-						bookTitles[i].setText(bookSearch.get(i));
+						bookTitles[i].setText(books.get(i));
 						bookTitles[i].setVisible(true);
 						bookButtons[i].setVisible(true);
+						
 					}
 					else {
 						bookTitles[i].setVisible(false);
@@ -340,21 +339,22 @@ public class StoreView extends JFrame implements ActionListener{
 		}
 		else if(searchVal.equals("")){
 			query = "select * from book";
-			try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+			try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "passwd"); Statement s = c.createStatement();){
 				result = s.executeQuery(query);
 				while(result.next()) {
-					bookSearch.add(result.getString("title"));
+					books.add(result.getString("title"));
 					searchcount++;
 				}
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-			if(bookSearch.size()> 0) {
+			if(books.size()> 0) {
 				for(int i = 0; i < count; i++) {
 					if(i < searchcount) {
-						bookTitles[i].setText(bookSearch.get(i));
+						bookTitles[i].setText(books.get(i));
 						bookTitles[i].setVisible(true);
 						bookButtons[i].setVisible(true);
+					
 					}
 					else {
 						bookTitles[i].setVisible(false);
@@ -371,20 +371,20 @@ public class StoreView extends JFrame implements ActionListener{
 		}
 		else {
 			query = "select * from book where " + searchType + " = '" + searchVal + "'";
-			try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "186086"); Statement s = c.createStatement();){
+			try(Connection c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/bookstore", "postgres", "passwd"); Statement s = c.createStatement();){
 				result = s.executeQuery(query);
 				while(result.next()) {
-					bookSearch.add(result.getString("title"));
+					books.add(result.getString("title"));
 					searchcount++;
 				}
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
 			
-			if(bookSearch.size()> 0) {
+			if(books.size()> 0) {
 				for(int i = 0; i < count; i++) {
 					if(i < searchcount) {
-						bookTitles[i].setText(bookSearch.get(i));
+						bookTitles[i].setText(books.get(i));
 						bookTitles[i].setVisible(true);
 						bookButtons[i].setVisible(true);
 					}
@@ -404,10 +404,6 @@ public class StoreView extends JFrame implements ActionListener{
 
 	}
 
-	public static void main(String[] args) {
-		StoreView store = new StoreView(false, "Guest");
-		
-	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String a = e.getActionCommand();
@@ -416,21 +412,19 @@ public class StoreView extends JFrame implements ActionListener{
 			this.signingIn();
 		}
 		else if(a.equals("Search")) {
-			if(titleS && !authorS && !isbnS && !genreS) {
+			if(titleS) {
 				this.bookSearchView("title", searchText.getText());
 			}
-			else if(!titleS && authorS && !isbnS && !genreS) {
+			else if(authorS) {
 				this.bookSearchView("author", searchText.getText());
 			}
-			else if(!titleS && !authorS && isbnS && !genreS) {
+			else if(isbnS) {
 				this.bookSearchView("ISBN", searchText.getText());
 			}
-			else if(!titleS && !authorS && !isbnS && genreS) {
+			else if(genreS) {
 				this.bookSearchView("genre", searchText.getText());
 			}
-			else {
-				JOptionPane.showMessageDialog(new JFrame(), "Can Only Search By One Option");
-			}
+			
 		}
 		else if(a.equals("Cart")) {
 			
@@ -444,6 +438,12 @@ public class StoreView extends JFrame implements ActionListener{
 			}
 			else {
 				titleS = true;
+				authorS = false;
+				isbnS = false;
+				genreS = false;
+				authorB.setSelected(false);
+				isbnB.setSelected(false);
+				genreB.setSelected(false);
 			}
 		}
 		else if(a.equals("Author")) {
@@ -452,6 +452,12 @@ public class StoreView extends JFrame implements ActionListener{
 			}
 			else {
 				authorS = true;
+				titleS = false;
+				isbnS = false;
+				genreS = false;
+				titleB.setSelected(false);
+				genreB.setSelected(false);
+				isbnB.setSelected(false);
 			}
 		}
 		else if(a.equals("ISBN")) {
@@ -460,14 +466,27 @@ public class StoreView extends JFrame implements ActionListener{
 			}
 			else {
 				isbnS = true;
+				authorS = false;
+				titleS = false;
+				genreS = false;
+				titleB.setSelected(false);
+				genreB.setSelected(false);
+				authorB.setSelected(false);
 			}
 		}
 		else if(a.equals("Genre")) {
 			if(genreS) {
 				genreS = false;
+				
 			}
 			else {
 				genreS = true;
+				titleS = false;
+				isbnS = false;
+				authorS = false;
+				titleB.setSelected(false);
+				authorB.setSelected(false);
+				isbnB.setSelected(false);
 			}
 		}
 	}
