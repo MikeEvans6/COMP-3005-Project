@@ -19,6 +19,10 @@ public class MainView implements ActionListener{
 	private JFrame createA;
 	private StoreView store;
 	
+	/**
+	 * Main View Constructor
+	 * @param vis
+	 */
 	public MainView(boolean vis) {	
 		first = new JFrame();
 		first.setLayout(new BorderLayout());
@@ -57,7 +61,9 @@ public class MainView implements ActionListener{
 		first.pack();
 		first.setVisible(vis);
 	}
-	
+	/**
+	 * Sign In Frame
+	 */
 	public void signIn() {
 		signIn = new JFrame("Sign In");
 		signIn.setLayout(new BorderLayout());
@@ -128,6 +134,9 @@ public class MainView implements ActionListener{
 		signIn.setVisible(true);
 		
 	}
+	/**
+	 * Create Account Frame
+	 */
 	public void createFrame() {
 		createA = new JFrame();
 		createA.setLayout(new BorderLayout());

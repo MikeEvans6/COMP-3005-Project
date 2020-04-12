@@ -32,6 +32,11 @@ public class StoreView extends JFrame implements ActionListener{
 	private boolean titleS, authorS, isbnS, genreS;
 	private CartView cartView;
 	
+	/**
+	 * Store View Constructor 
+	 * @param login
+	 * @param name
+	 */
 	public StoreView(boolean login, String name) {
 		super("MikeBuyABook");
 		this.loggedIn = login;
@@ -145,7 +150,9 @@ public class StoreView extends JFrame implements ActionListener{
 	}
 	
 	
-	
+	/**
+	 * Sign in view for Store
+	 */
 	public void signingIn() {
 		signingIn = new JFrame("Sign In");
 		signingIn.setLayout(new BorderLayout());
@@ -214,7 +221,10 @@ public class StoreView extends JFrame implements ActionListener{
 	}
 	
 	
-	
+	/**
+	 * Book Select View
+	 * @param title
+	 */
 	public void bookSelect(String title) {
 		bookSel = new JFrame("Book Select");
 		
@@ -293,7 +303,11 @@ public class StoreView extends JFrame implements ActionListener{
 	}
 	
 	
-	
+	/**
+	 * Book Search Function
+	 * @param searchType
+	 * @param searchVal
+	 */
 	public void bookSearchView(String searchType, String searchVal) {
 		String query;
 		ResultSet result;
